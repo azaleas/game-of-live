@@ -1,0 +1,91 @@
+.title {
+  text-align: center;
+  padding: 0.5em;
+  font-size: 1.5em;
+  text-transform: uppercase;
+  font-weight: bold;
+  -webkit-box-shadow: 3px 5px 10px 2px #ccc;
+          box-shadow: 3px 5px 10px 2px #ccc;
+  -webkit-border-radius: 5px;
+          border-radius: 5px;
+}
+
+.gameBoardWrapper {
+	margin: 3em auto;
+ -webkit-box-shadow: 3px 5px 10px 2px #ccc;
+      box-shadow: 3px 5px 10px 2px #ccc;
+  -webkit-border-radius: 5px;
+      border-radius: 5px;
+}
+
+.boardRow {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	align-items: stretch;
+	justify-content: center;
+}
+
+.boardCell {
+	width: 10px;
+	height: 10px;
+	border: 1px solid #f1f1f1;
+	/* -webkit-border-radius: 3px;
+	        border-radius: 3px; */
+}
+
+.live {
+	background-color: #32cd32;
+	border: 1px solid #32cd32;
+	-webkit-animation: live 0.4s ease-in-out infinite;
+	   -moz-animation: live 0.4s ease-in-out infinite;
+	     -o-animation: live 0.4s ease-in-out infinite;
+	        animation: live 0.4s ease-in-out infinite;
+}
+
+@keyframes live{
+    from{
+    	background-color: #dcffdc;
+    	border: 1px solid #dcffdc;
+    }
+    to {
+    	background-color: #32cd32;
+    	border: 1px solid #32cd32;
+    }
+}
+
+@-o-keyframes live{
+    from{
+    	opacity: 0;
+    }
+    to {
+    	opacity: 1;
+    }
+}
+
+@-ms-keyframes live{
+    from{
+    	opacity: 0;
+    }
+    to {
+    	opacity: 1;
+    }
+}
+
+@-webkit-keyframes live{
+    from{
+    	opacity: 0;
+    }
+    to {
+    	opacity: 1;
+    }
+}
+
+@-moz-keyframes live{
+    from{
+    	opacity: 0;
+    }
+    to {
+    	opacity: 1;
+    }
+}
