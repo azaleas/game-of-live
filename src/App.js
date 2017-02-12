@@ -3,6 +3,19 @@ import _ from 'lodash';
 
 import './App.css';
 
+const medium = {
+	boardSize: {
+		width: 60,
+		height: 40,
+	},
+	boardResize: "medium",
+	boardData: {},
+	cleanBoard: {},
+	iteratorCounter: 0,
+	running: false,
+	speed: 20,
+}
+
 const GameBoard = (props) => {	
 	const width = props.size.width;	
 	return(
@@ -40,33 +53,22 @@ const GameBoard = (props) => {
 }
 
 class App extends Component {
-  
+
 	constructor(props) {
 		super(props);
 
-		this.state = {
-			boardSize: {
-				width: 20,
-				height: 10,
-			},
-			boardData: {},
-			iteratorCounter: 0,
-		};
+		this.state = medium;
 	}
 
 	componentWillMount(){
-		this.dataFirst();
+		this.dataFirst(this.state);
 	}
 
-	componentDidMount(){
-		this.iterator();
-	}
-
-	dataFirst = () =>{
+	dataFirst = (data) =>{
 		let boardData = [];
 		let boardRows = [];
-		const height = this.state.boardSize.height
-		const width = this.state.boardSize.width;
+		const height = data.boardSize.height;
+		const width = data.boardSize.width;
 
 		for (let h = 0; h < height; h++){
 			for (let w = 0; w < width; w++){
@@ -80,21 +82,29 @@ class App extends Component {
 				}
 			}
 			if(h+1 === height){
+				let cleanBoard = _.cloneDeep(boardData)
 				boardData[2][4] = 1; 
 				boardData[3][5] = 1; 
 				boardData[4][3] = 1; 
 				boardData[4][4] = 1; 
 				boardData[4][5] = 1; 
-
-				this.setState({
+				
+				let state = Object.assign({}, data, {
 					boardData,
-					iteratorCounter: this.state.iteratorCounter+1,
+					iteratorCounter: data.iteratorCounter+1,
+					cleanBoard,
+					running: true,
 				});
+
+				setTimeout(() => {
+					this.setState(state);
+					this.iterator(data.iteratorCounter, data.speed);
+				}, 500);
 			}
 		}
 	}
 
-	dataIterate = (data) => {
+	dataIterate = () => {
 		let height = this.state.boardSize.height;
 		let width = this.state.boardSize.width;
 		let currentData = _.cloneDeep(this.state.boardData);
@@ -151,30 +161,110 @@ class App extends Component {
 					boardData: mirrorData,
 					iteratorCounter: iteratorCounter+1,
 				});
-				this.iterator();
+				this.iterator(this.state.iteratorCounter, this.state.speed);
 			}
 		}
 	}
 
-	iterator = () =>{
-		let iteratorCounter = this.state.iteratorCounter;
+	iterator = (iteratorCounter, speed) =>{
+		iteratorCounter = this.state.iteratorCounter;
 		setTimeout(() => {
 			if(iteratorCounter <= 500){
-				if(iteratorCounter > 0){
+				if(this.state.running){
 					this.dataIterate();
 				}		
 			}
-		}, 100);
+		}, speed);
 	};
+
+	play = (event) => {
+		if(!this.state.running){
+			this.setState({
+				running: true,
+			});
+			this.iterator();			
+		}
+	}
+
+	pause = (event) => {
+		this.setState({
+			running: false,
+		})
+	}
+
+	clear = (event) => {
+		this.setState({
+			running: false,
+			boardData: this.state.cleanBoard,
+			iteratorCounter: 0, 
+		})
+	}
+
+	boardResize = (event) => {
+		let boardName = event.target.name;
+		if(this.state.boardResize !== event.target.name){
+			this.setState({
+				running: false,
+			});
+		}
+		if(boardName === "medium" && this.state.boardResize !== "medium"){
+			this.dataFirst(medium);
+		}
+		else if(boardName === "small" && this.state.boardResize !== "small"){
+			const boardSize = {
+				width: 40,
+				height: 20,
+			};
+			const small = Object.assign({}, medium, {
+				boardSize,
+				boardResize: "small",
+				speed: 50,
+				running: true,
+			});
+			this.dataFirst(small);		
+		}
+		else if(boardName === "big" && this.state.boardResize !== "big"){
+			const boardSize = {
+				width: 80,
+				height: 60,
+			};
+			const big = Object.assign({}, medium, {
+				boardSize,
+				boardResize: "big",
+				speed: 2,
+				running: true,
+			});
+			this.dataFirst(big);		
+		}
+	}
 
 	render() {
 		return (
 		  <div className="App container">
 		  	<h1 className="bg-primary title">Game Of Life with React</h1>
-		  	<GameBoard 
-				data={this.state.boardData}
-				size={this.state.boardSize}
-		  	/>
+		  	<div className="boardControls">
+				<div className="btn btn-success" onClick={this.play}>Play</div>
+				<div className="btn btn-warning" onClick={this.pause}>Pause</div>
+				<div className="btn btn-danger" onClick={this.clear}>Clear</div>
+		  	</div>
+			<p><strong>Generation: </strong>{this.state.iteratorCounter}</p>
+		  	{
+		  		(this.state.boardData.length)
+		  		? (
+					<GameBoard 
+						data={this.state.boardData}
+						size={this.state.boardSize}
+				  	/>
+	  			)
+		  		: (
+				<p>Loading...</p>
+		  		)
+		  	}
+		  	<div className="boardControls">
+				<a className="btn btn-info" name="small" onClick={this.boardResize}>Small</a>
+				<a className="btn btn-default" name="medium" onClick={this.boardResize}>Medium</a>
+				<a className="btn btn-primary" name="big" onClick={this.boardResize}>Big</a>
+		  	</div>
 		  </div>
 		);
 	}
