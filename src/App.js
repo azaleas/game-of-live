@@ -25,10 +25,10 @@ const GameBoard = (props) => {
 			>
 			{
 				props.data.map((el, index) =>{
+					const rowIndex = index;
 					return(
 						<div
 							key={"r=" + index}
-							name={"r=" + index}
 							className="boardRow"
 						>
 						{
@@ -36,7 +36,9 @@ const GameBoard = (props) => {
 								return(
 									<div
 										key={"c=" + index}
-										name={"c=" + index}
+										data-rowIndex={rowIndex}
+										data-columnIndex={index}
+										onClick={props.cellClick}
 										className={"boardCell " + (el === 1 ? "live" : "dead")}
 									>
 									</div>
@@ -72,10 +74,7 @@ class App extends Component {
 
 		for (let h = 0; h < height; h++){
 			for (let w = 0; w < width; w++){
-				boardRows.push(
-					//Math.floor(Math.random() * (1 - 0 + 1) + 0)
-					0
-				);
+				boardRows.push(0);
 				if(w + 1 === width){
 					boardData.push(boardRows);
 					boardRows = [];
@@ -169,15 +168,14 @@ class App extends Component {
 	iterator = (iteratorCounter, speed) =>{
 		iteratorCounter = this.state.iteratorCounter;
 		setTimeout(() => {
-			if(iteratorCounter <= 500){
-				if(this.state.running){
-					this.dataIterate();
-				}		
-			}
+			if(this.state.running){
+				this.dataIterate();
+			}		
 		}, speed);
-	};
+	}
 
 	play = (event) => {
+		
 		if(!this.state.running){
 			this.setState({
 				running: true,
@@ -187,9 +185,11 @@ class App extends Component {
 	}
 
 	pause = (event) => {
-		this.setState({
-			running: false,
-		})
+		if(this.state.running){
+			this.setState({
+				running: false,
+			})
+		}
 	}
 
 	clear = (event) => {
@@ -205,6 +205,7 @@ class App extends Component {
 		if(this.state.boardResize !== event.target.name){
 			this.setState({
 				running: false,
+				boardData: {},
 			});
 		}
 		if(boardName === "medium" && this.state.boardResize !== "medium"){
@@ -231,11 +232,21 @@ class App extends Component {
 			const big = Object.assign({}, medium, {
 				boardSize,
 				boardResize: "big",
-				speed: 2,
+				speed: 10,
 				running: true,
 			});
 			this.dataFirst(big);		
 		}
+	}
+
+	cellClick = (event) => {
+		let rowIndex = event.target.getAttribute('data-rowIndex');
+		let columnIndex = event.target.getAttribute('data-columnIndex');
+		let currentData = this.state.boardData;
+		currentData[rowIndex][columnIndex] = 1;
+		this.setState({
+			boardData: currentData,
+		});
 	}
 
 	render() {
@@ -254,6 +265,7 @@ class App extends Component {
 					<GameBoard 
 						data={this.state.boardData}
 						size={this.state.boardSize}
+						cellClick={this.cellClick}
 				  	/>
 	  			)
 		  		: (
