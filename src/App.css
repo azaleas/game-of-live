@@ -11,6 +11,7 @@
 }
 
 .gameBoardWrapper {
+  position: relative !important;
 	margin: 3em auto;
  -webkit-box-shadow: 3px 5px 10px 2px #ccc;
       box-shadow: 3px 5px 10px 2px #ccc;
@@ -21,6 +22,7 @@
 p {
   text-align: center;
 }
+
 
 .boardRow {
 	display: flex;
@@ -37,6 +39,11 @@ p {
   cursor: pointer;
 	/* -webkit-border-radius: 3px;
 	        border-radius: 3px; */
+          -webkit-transition: all 0.2s linear;
+             -moz-transition: all 0.2s linear;
+              -ms-transition: all 0.2s linear;
+               -o-transition: all 0.2s linear;
+                  transition: all 0.2s linear;
 }
 
 .live {

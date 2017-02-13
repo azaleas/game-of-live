@@ -54,6 +54,7 @@ const GameBoard = (props) => {
 	);
 }
 
+
 class App extends Component {
 
 	constructor(props) {
@@ -87,6 +88,12 @@ class App extends Component {
 				boardData[4][3] = 1; 
 				boardData[4][4] = 1; 
 				boardData[4][5] = 1; 
+
+				boardData[6][4] = 1; 
+				boardData[6][5] = 1; 
+				boardData[6][3] = 1; 
+				boardData[5][4] = 1; 
+				boardData[4][5] = 1; 
 				
 				let state = Object.assign({}, data, {
 					boardData,
@@ -108,6 +115,7 @@ class App extends Component {
 		let width = this.state.boardSize.width;
 		let currentData = _.cloneDeep(this.state.boardData);
 		let mirrorData = _.cloneDeep(currentData);
+		let alive = false;
 		for (let h = 0; h < height; h++){
 			let above = h > 0 ? h-1 : height-1;
         	let below = h < height-1 ? h+1 : 0;
@@ -137,7 +145,8 @@ class App extends Component {
 				if(currentData[h][w] === 0){
 					switch(totalNeighborCount){
 						case 3:
-							mirrorData[h][w] = 1; //cell is dead but has 3 neighbours => cell alive
+							mirrorData[h][w] = 1;
+							alive = true; //cell is dead but has 3 neighbours => cell alive
 						break;
 						default:
 							mirrorData[h][w] = 0; // leave cell dead if its already dead and doesnt have 3 neighbours
@@ -147,7 +156,8 @@ class App extends Component {
 					switch(totalNeighborCount){
 						case 2:
 						case 3:
-							mirrorData[h][w] = 1; // leave cell alive if neighbour count is >=2 or <=3
+							mirrorData[h][w] = 1;
+							alive = true; // leave cell alive if neighbour count is >=2 or <=3
 						break;
 						default:
 							mirrorData[h][w] = 0; //if cell is alive but if neighbour count is <= 1 or >=4 => cell dead
@@ -155,12 +165,21 @@ class App extends Component {
 				}
 			}
 			if(h+1 === height){
-				let iteratorCounter = this.state.iteratorCounter;
-				this.setState({
-					boardData: mirrorData,
-					iteratorCounter: iteratorCounter+1,
-				});
-				this.iterator(this.state.iteratorCounter, this.state.speed);
+				if(alive){
+					let iteratorCounter = this.state.iteratorCounter;
+					this.setState({
+						boardData: _.cloneDeep(mirrorData),
+						iteratorCounter: iteratorCounter+1,
+					});
+					this.iterator(this.state.iteratorCounter, this.state.speed);
+				}
+				else{
+					this.setState({
+						boardData: _.cloneDeep(mirrorData),
+						iteratorCounter: 0,
+						running: false,
+					});
+				}
 			}
 		}
 	}
@@ -195,9 +214,9 @@ class App extends Component {
 	clear = (event) => {
 		this.setState({
 			running: false,
-			boardData: this.state.cleanBoard,
+			boardData: _.cloneDeep(this.state.cleanBoard),
 			iteratorCounter: 0, 
-		})
+		});
 	}
 
 	boardResize = (event) => {
@@ -232,7 +251,7 @@ class App extends Component {
 			const big = Object.assign({}, medium, {
 				boardSize,
 				boardResize: "big",
-				speed: 10,
+				speed: 15,
 				running: true,
 			});
 			this.dataFirst(big);		
@@ -262,11 +281,11 @@ class App extends Component {
 		  	{
 		  		(this.state.boardData.length)
 		  		? (
-					<GameBoard 
-						data={this.state.boardData}
+				  	<GameBoard 
+				  		data={this.state.boardData}
 						size={this.state.boardSize}
 						cellClick={this.cellClick}
-				  	/>
+					/>
 	  			)
 		  		: (
 				<p>Loading...</p>
